@@ -1,12 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const router = require('./routes');
 
 const app = express();
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
@@ -14,8 +10,17 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '6485bc79c1bcd444ef0804e6',
+  };
+
+  next();
+});
+
 app.use(router);
 
 app.listen(3001, () => {
+  // eslint-disable-next-line no-console
   console.log('Слушаю порт 3001');
 });
