@@ -14,3 +14,5 @@
 
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
+
+## [Ссылка репозитория](https://github.com/darinadanilova/express-mesto-gha)
