@@ -4,16 +4,20 @@ const getCards = (req, res) => {
   Card.find({})
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err.message.includes('validation failed')) {
+        res.status(400).send({ message: 'Вы ввели некорректные данные' });
+      } else if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card not found',
+          message: 'User not found',
         });
       } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res
+          .status(500)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
       }
     });
 };
@@ -28,6 +32,10 @@ const createCard = (req, res) => {
     .catch((err) => {
       if (err.message.includes('validation failed')) {
         res.status(400).send({ message: 'Вы ввели некорректные данные' });
+      } else if (err.message === 'Not found') {
+        res.status(404).send({
+          message: 'User not found',
+        });
       } else {
         res
           .status(500)
@@ -45,16 +53,20 @@ const deleteCardId = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err.message.includes('validation failed')) {
+        res.status(400).send({ message: 'Вы ввели некорректные данные' });
+      } else if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card not found',
+          message: 'User not found',
         });
       } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res
+          .status(500)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
       }
     });
 };
@@ -64,16 +76,20 @@ const putLikeCard = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err.message.includes('validation failed')) {
+        res.status(400).send({ message: 'Вы ввели некорректные данные' });
+      } else if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card not found',
+          message: 'User not found',
         });
       } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res
+          .status(500)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
       }
     });
 };
@@ -83,16 +99,20 @@ const deleteLikeCard = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err.message.includes('validation failed')) {
+        res.status(400).send({ message: 'Вы ввели некорректные данные' });
+      } else if (err.message === 'Not found') {
         res.status(404).send({
-          message: 'Card not found',
+          message: 'User not found',
         });
       } else {
-        res.status(500).send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res
+          .status(500)
+          .send({
+            message: 'Internal Server Error',
+            err: err.message,
+            stack: err.stack,
+          });
       }
     });
 };
