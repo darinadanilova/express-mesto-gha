@@ -1,24 +1,15 @@
 const Card = require('../models/card');
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR,
+} = require('../utils/errors');
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.status(200).send(cards))
+    .then((cards) => res.send(cards))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера', err: err.message, stack: err.stack });
     });
 };
 
@@ -29,17 +20,17 @@ const createCard = (req, res) => {
   })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'ValidationError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });
@@ -50,19 +41,25 @@ const createCard = (req, res) => {
 const deleteCardId = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Пользователь не найден',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });
@@ -75,17 +72,23 @@ const putLikeCard = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Пользователь не найден',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });
@@ -98,17 +101,23 @@ const deleteLikeCard = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Пользователь не найден',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });

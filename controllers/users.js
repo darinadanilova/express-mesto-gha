@@ -1,49 +1,43 @@
 const User = require('../models/user');
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR,
+} = require('../utils/errors');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.send({ data: users }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
-      } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
-      }
+      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера', err: err.message, stack: err.stack });
     });
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        res.status(404).send({
-          message: 'Пользователь не найден',
-        });
-      } else {
-        res.send({ data: user });
-      }
-    })
+    .orFail(() => new Error('Not found'))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Пользователь не найден',
-        });
+      if (err.message === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Пользователь не найден',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
       } else {
-        res.status(500).send({
-          message: 'Ошибка сервера',
-          err: err.message,
-          stack: err.stack,
-        });
+        res
+          .status(SERVER_ERROR)
+          .send({
+            message: 'Ошибка сервера',
+            err: err.message,
+            stack: err.stack,
+          });
       }
     });
 };
@@ -53,17 +47,17 @@ const createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'ValidationError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });
@@ -74,19 +68,32 @@ const createUser = (req, res) => {
 const patchUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.status(201).send({ data: user }))
+    .orFail(() => new Error('Not found'))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'ValidationError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Пользователь не найден',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });
@@ -97,19 +104,32 @@ const patchUser = (req, res) => {
 const patchAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.status(201).send({ data: user }))
+    .orFail(() => new Error('Not found'))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } else if (err.message === 'Not found') {
-        res.status(404).send({
-          message: 'User not found',
-        });
+      if (err.name === 'ValidationError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.name === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Пользователь не найден',
+          });
       } else {
         res
-          .status(500)
+          .status(SERVER_ERROR)
           .send({
-            message: 'Internal Server Error',
+            message: 'Ошибка сервера',
             err: err.message,
             stack: err.stack,
           });
