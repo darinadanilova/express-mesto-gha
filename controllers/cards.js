@@ -2,7 +2,7 @@ const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((card) => res.status(200).send(card))
+    .then((cards) => res.status(200).send(cards))
     .catch((err) => {
       if (err.message.includes('validation failed')) {
         res.status(400).send({ message: 'Вы ввели некорректные данные' });
@@ -23,12 +23,11 @@ const getCards = (req, res) => {
 };
 
 const createCard = (req, res) => {
-  const { name, link } = req.body;
   Card.create({
     ...req.body,
     owner: req.user._id,
   })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('validation failed')) {
         res.status(400).send({ message: 'Вы ввели некорректные данные' });
@@ -51,7 +50,7 @@ const createCard = (req, res) => {
 const deleteCardId = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('validation failed')) {
         res.status(400).send({ message: 'Вы ввели некорректные данные' });
@@ -74,7 +73,7 @@ const deleteCardId = (req, res) => {
 const putLikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('validation failed')) {
         res.status(400).send({ message: 'Вы ввели некорректные данные' });
@@ -97,7 +96,7 @@ const putLikeCard = (req, res) => {
 const deleteLikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('validation failed')) {
         res.status(400).send({ message: 'Вы ввели некорректные данные' });
