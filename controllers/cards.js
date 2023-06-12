@@ -45,17 +45,17 @@ const deleteCardId = (req, res) => {
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'Not found') {
-        res
-          .status(NOT_FOUND)
-          .send({
-            message: 'Карточка не найдена',
-          });
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res
           .status(BAD_REQUEST)
           .send({
             message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.message === 'Карточка не найдена') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Карточка не найдена',
           });
       } else {
         res
@@ -76,13 +76,19 @@ const putLikeCard = (req, res) => {
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'Not found') {
+      if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.message === 'Карточка не найдена') {
         res
           .status(NOT_FOUND)
           .send({
             message: 'Карточка не найдена',
           });
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         res
           .status(BAD_REQUEST)
           .send({
@@ -107,13 +113,19 @@ const deleteLikeCard = (req, res) => {
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'Not found') {
+      if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else if (err.message === 'Карточка не найдена') {
         res
           .status(NOT_FOUND)
           .send({
             message: 'Карточка не найдена',
           });
-      } else if (err.name === 'CastError') {
+      } else if (err.name === 'ValidationError') {
         res
           .status(BAD_REQUEST)
           .send({
