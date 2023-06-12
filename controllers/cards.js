@@ -43,17 +43,17 @@ const deleteCardId = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res
-          .status(BAD_REQUEST)
-          .send({
-            message: 'Вы ввели некорректные данные',
-          });
-      } else if (err.name === 'Not found') {
+      if (err.name === 'Not found') {
         res
           .status(NOT_FOUND)
           .send({
             message: 'Пользователь не найден',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
           });
       } else {
         res
@@ -70,19 +70,19 @@ const deleteCardId = (req, res) => {
 const putLikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res
-          .status(BAD_REQUEST)
-          .send({
-            message: 'Вы ввели некорректные данные',
-          });
-      } else if (err.name === 'Not found') {
+      if (err.name === 'Not found') {
         res
           .status(NOT_FOUND)
           .send({
             message: 'Пользователь не найден',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
           });
       } else {
         res
@@ -99,19 +99,19 @@ const putLikeCard = (req, res) => {
 const deleteLikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res
-          .status(BAD_REQUEST)
-          .send({
-            message: 'Вы ввели некорректные данные',
-          });
-      } else if (err.name === 'Not found') {
+      if (err.name === 'Not found') {
         res
           .status(NOT_FOUND)
           .send({
             message: 'Пользователь не найден',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
           });
       } else {
         res
