@@ -40,29 +40,26 @@ const createCard = (req, res) => {
 
 const deleteCardId = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => new Error('Not found'))
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === 'Not found') {
-        res
-          .status(NOT_FOUND)
-          .send({
-            message: 'Пользователь не найден',
-          });
-      } else if (err.name === 'CastError') {
-        res
-          .status(BAD_REQUEST)
-          .send({
-            message: 'Вы ввели некорректные данные',
-          });
+    .then((card) => {
+      if (!card) {
+        res.status(400).send({
+          message: 'Карточка не найдена',
+        });
       } else {
-        res
-          .status(SERVER_ERROR)
-          .send({
-            message: 'Ошибка сервера',
-            err: err.message,
-            stack: err.stack,
-          });
+        res.send({ data: card });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Вы ввели некорректные данные',
+        });
+      } else {
+        res.status(500).send({
+          message: 'Ошибка сервера',
+          err: err.message,
+          stack: err.stack,
+        });
       }
     });
 };
