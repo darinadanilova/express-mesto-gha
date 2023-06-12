@@ -24,23 +24,27 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => new Error('Not found'))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        return res.status(400).send({ message: 'Вы ввели некорректные данные' });
-      } if (err.message === 'Not found') {
-        return res.status(404).send({
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({
           message: 'Пользователь не найден',
         });
+      } else {
+        res.send({ data: user });
       }
-      return res
-        .status(500)
-        .send({
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(404).send({
+          message: 'Пользователь не найден',
+        });
+      } else {
+        res.status(500).send({
           message: 'Ошибка сервера',
           err: err.message,
           stack: err.stack,
         });
+      }
     });
 };
 
