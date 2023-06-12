@@ -40,40 +40,47 @@ const createCard = (req, res) => {
 
 const deleteCardId = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(400).send({
-          message: 'Карточка не найдена',
-        });
-      } else {
-        res.send({ data: card });
-      }
+    .orFail(() => {
+      throw new Error('Карточка не найдена');
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({
-          message: 'Вы ввели некорректные данные',
-        });
-      } else {
-        res.status(500).send({
-          message: 'Ошибка сервера',
-          err: err.message,
-          stack: err.stack,
-        });
-      }
-    });
-};
-
-const putLikeCard = (req, res) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail(() => new Error('Not found'))
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'Not found') {
         res
           .status(NOT_FOUND)
           .send({
-            message: 'Пользователь не найден',
+            message: 'Карточка не найдена',
+          });
+      } else if (err.name === 'CastError') {
+        res
+          .status(BAD_REQUEST)
+          .send({
+            message: 'Вы ввели некорректные данные',
+          });
+      } else {
+        res
+          .status(SERVER_ERROR)
+          .send({
+            message: 'Ошибка сервера',
+            err: err.message,
+            stack: err.stack,
+          });
+      }
+    });
+};
+
+const putLikeCard = (req, res) => {
+  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+    .orFail(() => {
+      throw new Error('Карточка не найдена');
+    })
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'Not found') {
+        res
+          .status(NOT_FOUND)
+          .send({
+            message: 'Карточка не найдена',
           });
       } else if (err.name === 'CastError') {
         res
@@ -95,14 +102,16 @@ const putLikeCard = (req, res) => {
 
 const deleteLikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(() => new Error('Not found'))
+    .orFail(() => {
+      throw new Error('Карточка не найдена');
+    })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'Not found') {
         res
           .status(NOT_FOUND)
           .send({
-            message: 'Пользователь не найден',
+            message: 'Карточка не найдена',
           });
       } else if (err.name === 'CastError') {
         res
