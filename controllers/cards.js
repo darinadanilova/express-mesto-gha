@@ -22,7 +22,7 @@ const createCard = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
@@ -37,7 +37,7 @@ const getCards = (req, res) => {
       res
         .status(INTERNAL_SERVER_ERROR)
         .send({
-          message: 'Ошибка сервера',
+          message: 'На сервере произошла ошибка',
           err: err.message,
           stack: err.stack,
         });
@@ -65,7 +65,7 @@ const deleteCardId = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
@@ -100,7 +100,7 @@ const putLikeCard = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
@@ -135,7 +135,7 @@ const deleteLikeCard = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });

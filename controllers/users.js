@@ -20,7 +20,7 @@ const createUser = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
@@ -35,7 +35,7 @@ const getUsers = (req, res) => {
       res
         .status(INTERNAL_SERVER_ERROR)
         .send({
-          message: 'Ошибка сервера',
+          message: 'На сервере произошла ошибка',
           err: err.message,
           stack: err.stack,
         });
@@ -63,7 +63,7 @@ const getUserById = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
@@ -99,7 +99,7 @@ const patchUser = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
@@ -135,7 +135,7 @@ const patchAvatar = (req, res) => {
         res
           .status(INTERNAL_SERVER_ERROR)
           .send({
-            message: 'Ошибка сервера',
+            message: 'На сервере произошла ошибка',
             err: err.message,
             stack: err.stack,
           });
