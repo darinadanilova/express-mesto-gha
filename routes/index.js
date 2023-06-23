@@ -16,8 +16,6 @@ router.use(auth);
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
 
-router.use('*', (req, res, next) => {
-  res.status(ERROR_NOT_FOUND).send({ message: 'Запрашиваемый ресурс не найден' });
-});
+router.use('*', (req, res, next) => next(new ERROR_NOT_FOUND('Запрашиваемый ресурс не найден')));
 
 module.exports = router;
