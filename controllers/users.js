@@ -23,38 +23,40 @@ const createUser = (req, res, next) => {
         .catch((err) => {
           if (err.code === 11000) {
             next(new ERROR_CONFLICT('Пользователь с данным email уже зарегистрирован'));
-            return;
-          }
-          if (err.name === 'ValidationError') {
+          } else if (err.name === 'ValidationError') {
             next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-            return;
+          } else {
+            next(err);
           }
-          next(err);
         });
     });
 };
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email })
+  return User.findOne({ email })
     .select('+password')
     .orFail(() => next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль')))
     .then((user) => {
-      bcrypt.compare((password), user.password)
+      bcrypt.compare(password, user.password)
         .then((isValidUser) => {
           if (isValidUser) {
-            const jwt = jsonWebToken.sign({
-              _id: user._id,
-            }, process.env.JWT_SECRET);
-            res.cookie('jwt', jwt, {
-              maxAge: 360000 * 24 * 7,
-              httpOnly: true,
-              sameSite: true,
-            });
-            return res.send({ data: user.toJSON() });
+            return user;
           }
-          throw new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль');
+          return next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
         });
+    })
+    .then((user) => {
+      const jwt = jsonWebToken.sign({
+        _id: user._id,
+      }, process.env.JWT_SECRET);
+      res
+        .cookie('jwt', jwt, {
+          maxAge: 360000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .send({ data: user.toJSON() });
     })
     .catch(next);
 };
@@ -67,45 +69,23 @@ const getUsers = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => new Error('Not found'))
-    .then((user) => {
-      if (user) return res.send({ data: user });
-      throw new ERROR_NOT_FOUND('Пользователь не найден');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+    .orFail(() => next(new ERROR_NOT_FOUND('Пользователь не найден')))
+    .then((user) => res.send({ data: user }))
+    .catch(next);
 };
 
 const getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (user) return res.send({ data: user });
-      throw new ERROR_NOT_FOUND('Пользователь не найден');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+    .then((users) => res.send({ data: users }))
+    .catch(next);
 };
 
 const patchUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(() => new Error('Not found'))
-    .then((user) => {
-      if (user) return res.send({ data: user });
-      throw new ERROR_NOT_FOUND('Пользователь не найден');
-    })
+    .then((users) => res.send({ data: users }))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
       } else {
         next(err);
@@ -116,13 +96,9 @@ const patchUser = (req, res, next) => {
 const patchAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => new Error('Not found'))
-    .then((user) => {
-      if (user) return res.send({ data: user });
-      throw new ERROR_NOT_FOUND('Пользователь не найден');
-    })
+    .then((users) => res.send({ data: users }))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
       } else {
         next(err);
@@ -132,10 +108,10 @@ const patchAvatar = (req, res, next) => {
 
 module.exports = {
   createUser,
+  login,
   getUsers,
   getUserById,
   getUser,
   patchUser,
   patchAvatar,
-  login,
 };
