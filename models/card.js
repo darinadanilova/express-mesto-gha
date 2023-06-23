@@ -4,12 +4,18 @@ const cardSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
+    minlength: [2, 'Максимальная длина поля "name" - 2'],
+    maxlength: [30, 'Максимальная длина поля "name" - 30'],
   },
   link: {
     type: String,
     required: true,
+    validate: {
+      validator(url) {
+        return /\bhttps?:\/\/(?:www\.)?\w+\.\w+(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?(?:#\w*)?\b/.test(url);
+      },
+      message: 'Введите URL картинки',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

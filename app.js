@@ -1,10 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const validator = require('validator');
+const jsonWebToken = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const cookieParser = require('cookie-parser');
 const router = require('./routes');
 const {
   PORT,
   MONGODB,
 } = require('./utils/config');
+const errorHandler = require('./middlwares/error');
 
 const app = express();
 
@@ -14,15 +21,13 @@ mongoose.connect(MONGODB, {
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '648618ea2812f35f9445ff30',
-  };
-
-  next();
-});
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(router);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
