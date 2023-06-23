@@ -86,6 +86,21 @@ const getUserById = (req, res, next) => {
     });
 };
 
+const getUser = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (user) return res.send({ data: user });
+      throw new ERROR_NOT_FOUND('Пользователь не найден');
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
+};
+
 const patchUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
@@ -124,6 +139,7 @@ module.exports = {
   createUser,
   getUsers,
   getUserById,
+  getUser,
   patchUser,
   patchAvatar,
   login,
