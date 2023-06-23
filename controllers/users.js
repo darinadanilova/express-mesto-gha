@@ -17,7 +17,9 @@ const createUser = (req, res, next) => {
       User.create({
         name, about, avatar, email, password: hashedPassword,
       })
-        .then((user) => res.status(201).send({ data: user }))
+        .then(() => res.status(201).send({
+          name, about, avatar, email,
+        }))
         .catch((err) => {
           if (err.code === 11000) {
             next(new ERROR_CONFLICT('Пользователь с данным email уже зарегистрирован'));
@@ -36,7 +38,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new Error('Not found'))
+    .orFail(() => next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль')))
     .then((user) => {
       bcrypt.compare((password), user.password)
         .then((isValidUser) => {
@@ -45,23 +47,16 @@ const login = (req, res, next) => {
               _id: user._id,
             }, process.env.JWT_SECRET);
             res.cookie('jwt', jwt, {
-              maxAge: 360000,
+              maxAge: 360000 * 24 * 7,
               httpOnly: true,
               sameSite: true,
             });
-            res.send({ data: user.toJSON() });
-          } else {
-            next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
+            return res.send({ data: user.toJSON() });
           }
+          throw new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль');
         });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const getUsers = (req, res, next) => {
