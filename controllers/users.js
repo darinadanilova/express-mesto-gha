@@ -21,11 +21,13 @@ const createUser = (req, res, next) => {
         .catch((err) => {
           if (err.code === 11000) {
             next(new ERROR_CONFLICT('Пользователь с данным email уже зарегистрирован'));
-          } else if (err.name === 'ValidationError') {
-            next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-          } else {
-            next(err);
+            return;
           }
+          if (err.name === 'ValidationError') {
+            next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+            return;
+          }
+          next(err);
         });
     });
 };
