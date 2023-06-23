@@ -1,11 +1,14 @@
+/* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const validator = require('validator');
 const jsonWebToken = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
+const auth = require('./middlwares/auth');
 const router = require('./routes');
 const {
   PORT,
@@ -25,8 +28,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(auth);
+
 app.use(router);
 
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {
