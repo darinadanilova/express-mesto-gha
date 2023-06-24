@@ -14,20 +14,21 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
 const getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send(cards))
+    .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
 
 const deleteCardId = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => new Error('Карта не найдена'))
+  Card.findById(req.params.cardId)
+    .orFail(() => new ERROR_NOT_FOUND('Карта не найдена'))
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         Card.deleteOne(card)
@@ -42,34 +43,16 @@ const deleteCardId = (req, res, next) => {
 
 const putLikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail(() => new Error('Карта не найдена'))
-    .then((card) => {
-      if (card) return res.send({ data: card });
-      throw new ERROR_NOT_FOUND('Карта не найдена');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-        return;
-      }
-      next(err);
-    });
+    .orFail(() => new ERROR_NOT_FOUND('Карта не найдена'))
+    .then((card) => res.send({ data: card }))
+    .catch(next);
 };
 
 const deleteLikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(() => new Error('Карта не найдена'))
-    .then((card) => {
-      if (card) return res.send({ data: card });
-      throw new ERROR_NOT_FOUND('Карта не найдена');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
-        return;
-      }
-      next(err);
-    });
+    .orFail(() => new ERROR_NOT_FOUND('Карта не найдена'))
+    .then((card) => res.send({ data: card }))
+    .catch(next);
 };
 
 module.exports = {
