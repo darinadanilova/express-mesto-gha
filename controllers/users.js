@@ -35,24 +35,25 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email })
     .select('+password')
-    .orFail(() => next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль')))
+    .orFail(() => {
+      const err = new Error('Вы ввели неверные email и пароль');
+      err.statusCode = 401;
+      throw err;
+    })
     .then((user) => bcrypt.compare(password, user.password)
       .then((isValidUser) => {
         if (isValidUser) {
           return user;
         }
-        return next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
+        const err = new Error('Вы ввели неверные email и пароль');
+        err.statusCode = 401;
+        throw err;
       }))
     .then((user) => {
       const jwt = jsonWebToken.sign({
         _id: user._id,
       }, SECRET_KEY, { expiresIn: '7d' });
       res
-      // .cookie('jwt', jwt, {
-      //  maxAge: 3600000 * 24 * 7,
-      //  httpOnly: true,
-      //  sameSite: true,
-      // })
         .send({ jwt });
     })
     .catch((err) => {
