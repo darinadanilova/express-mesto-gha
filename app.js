@@ -9,6 +9,7 @@ const jsonWebToken = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const auth = require('./middlwares/auth');
+const error = require('./middlwares/error');
 const router = require('./routes');
 const {
   PORT,
@@ -33,7 +34,7 @@ app.use(auth);
 app.use(router);
 
 app.use(errors());
-app.use(errorHandler);
+app.use(error);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
