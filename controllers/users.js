@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
+const { SECRET_KEY } = require('../utils/config');
 const User = require('../models/user');
 const {
   ERROR_BAD_REQUEST,
@@ -45,7 +46,7 @@ const login = (req, res, next) => {
     .then((user) => {
       const jwt = jsonWebToken.sign({
         _id: user._id,
-      }, process.env['JWT_SECRET'], { expiresIn: '7d' });
+      }, SECRET_KEY, { expiresIn: '7d' });
       res
       // .cookie('jwt', jwt, {
       //  maxAge: 3600000 * 24 * 7,
