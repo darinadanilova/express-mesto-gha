@@ -11,7 +11,7 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, process.env['JWT_SECRET']);
   } catch (err) {
-    return next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
+    next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
   }
 
   req.user = payload;

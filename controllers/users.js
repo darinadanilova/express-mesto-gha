@@ -35,24 +35,23 @@ const login = (req, res, next) => {
   return User.findOne({ email })
     .select('+password')
     .orFail(() => next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль')))
-    .then((user) =>
-      bcrypt.compare(password, user.password)
-        .then((isValidUser) => {
-          if (isValidUser) {
-            return user;
-          }
-          return next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
-        }))
+    .then((user) => bcrypt.compare(password, user.password)
+      .then((isValidUser) => {
+        if (isValidUser) {
+          return user;
+        }
+        return next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
+      }))
     .then((user) => {
       const jwt = jsonWebToken.sign({
         _id: user._id,
       }, process.env['JWT_SECRET'], { expiresIn: '7d' });
       res
-       //.cookie('jwt', jwt, {
-       //  maxAge: 3600000 * 24 * 7,
-       //  httpOnly: true,
-       //  sameSite: true,
-       //})
+      // .cookie('jwt', jwt, {
+      //  maxAge: 3600000 * 24 * 7,
+      //  httpOnly: true,
+      //  sameSite: true,
+      // })
         .send({ jwt });
     })
     .catch((err) => {
@@ -78,15 +77,15 @@ const getUserById = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((users) => res.send({ data: users }))
+  User.findById(req.user._id)
+    .then((user) => res.send({ data: user }))
     .catch(next);
 };
 
 const patchUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((users) => res.send({ data: users }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
@@ -99,7 +98,7 @@ const patchUser = (req, res, next) => {
 const patchAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((users) => res.send({ data: users }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
