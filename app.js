@@ -25,7 +25,7 @@ mongoose.connect(MONGODB, {
 
 app.use(express.json());
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -34,7 +34,7 @@ app.use(auth);
 app.use(router);
 
 app.use(errors());
-app.use(error);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
