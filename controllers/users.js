@@ -31,16 +31,8 @@ const createUser = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findOne({ email })
-    .select('+password')
-    .orFail(() => next(new UnauthorizedError('Вы ввели неверные email и пароль')))
-    .then((user) => bcrypt.compare(password, user.password)
-      .then((isValidUser) => {
-        if (isValidUser) {
-          return user;
-        }
-        return next(new UnauthorizedError('Вы ввели неверные email и пароль'));
-      }))
+  User
+    .findUserByCredentials(email, password)
     .then((user) => {
       const jwt = jsonWebToken.sign({
         _id: user._id,
