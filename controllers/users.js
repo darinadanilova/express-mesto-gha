@@ -66,13 +66,25 @@ const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Вы ввели некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Вы ввели некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const patchUser = (req, res, next) => {
