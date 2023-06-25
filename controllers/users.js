@@ -2,12 +2,10 @@ const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const { SECRET_KEY } = require('../utils/config');
 const User = require('../models/user');
-const {
-  ERROR_BAD_REQUEST,
-  ERROR_NOT_FOUND,
-  ERROR_CONFLICT,
-  ERROR_UNAUTHORIZED,
-} = require('../utils/errors');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const createUser = (req, res, next) => {
   const {
@@ -22,9 +20,9 @@ const createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ERROR_CONFLICT('Пользователь с данным email уже зарегистрирован'));
+        next(new ConflictError('Пользователь с данным email уже зарегистрирован'));
       } else if (err.name === 'ValidationError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+        next(new BadRequestError('Вы ввели некорректные данные'));
       } else {
         next(err);
       }
@@ -35,30 +33,29 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email })
     .select('+password')
-    .orFail(() => {
-      const err = new Error('Вы ввели неверные email и пароль');
-      err.statusCode = 401;
-      throw err;
-    })
+    .orFail(() => next(new UnauthorizedError('Вы ввели неверные email и пароль')))
     .then((user) => bcrypt.compare(password, user.password)
       .then((isValidUser) => {
         if (isValidUser) {
           return user;
         }
-        const err = new Error('Вы ввели неверные email и пароль');
-        err.statusCode = 401;
-        throw err;
+        return next(new UnauthorizedError('Вы ввели неверные email и пароль'));
       }))
     .then((user) => {
       const jwt = jsonWebToken.sign({
         _id: user._id,
       }, SECRET_KEY, { expiresIn: '7d' });
       res
+      // .cookie('jwt', jwt, {
+      //  maxAge: 3600000 * 24 * 7,
+      //  httpOnly: true,
+      //  sameSite: true,
+      // })
         .send({ jwt });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+        next(new BadRequestError('Вы ввели некорректные данные'));
         return;
       }
       next(err);
@@ -73,7 +70,7 @@ const getUsers = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => next(new ERROR_NOT_FOUND('Пользователь не найден')))
+    .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ data: user }))
     .catch(next);
 };
@@ -90,7 +87,7 @@ const patchUser = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+        next(new BadRequestError('Вы ввели некорректные данные'));
       } else {
         next(err);
       }
@@ -103,7 +100,7 @@ const patchAvatar = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ERROR_BAD_REQUEST('Вы ввели некорректные данные'));
+        next(new BadRequestError('Вы ввели некорректные данные'));
       } else {
         next(err);
       }

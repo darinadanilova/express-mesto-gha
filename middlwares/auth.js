@@ -2,9 +2,7 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { SECRET_KEY } = require('../utils/config');
-const {
-  ERROR_UNAUTHORIZED,
-} = require('../utils/errors');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const auth = (req, res, next) => {
   const token = req.cookies.jwt;
@@ -12,7 +10,7 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, SECRET_KEY);
   } catch (err) {
-    next(new ERROR_UNAUTHORIZED('Вы ввели неверные email и пароль'));
+    next(new UnauthorizedError('Вы ввели неверные email и пароль'));
   }
 
   req.user = payload;

@@ -4,9 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const userRoutes = require('./users');
 const auth = require('../middlwares/auth');
 const cardRoutes = require('./cards');
-const {
-  ERROR_NOT_FOUND,
-} = require('../utils/errors');
+const NotFoundError = require('../errors/NotFoundError');
 const { createUser } = require('../controllers/users');
 const { login } = require('../controllers/users');
 
@@ -34,6 +32,6 @@ router.use(auth);
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
 
-router.use('*', (req, res, next) => next(new ERROR_NOT_FOUND('Запрашиваемый ресурс не найден')));
+router.use('*', (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
 module.exports = router;
