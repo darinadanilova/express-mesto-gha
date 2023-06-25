@@ -46,20 +46,14 @@ const login = (req, res, next) => {
         _id: user._id,
       }, SECRET_KEY, { expiresIn: '7d' });
       res
-      // .cookie('jwt', jwt, {
-      //  maxAge: 3600000 * 24 * 7,
-      //  httpOnly: true,
-      //  sameSite: true,
-      // })
-        .send({ jwt });
+        .cookie('jwt', jwt, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .send({ data: user.toJSON() });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Вы ввели некорректные данные'));
-        return;
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const getUsers = (req, res, next) => {

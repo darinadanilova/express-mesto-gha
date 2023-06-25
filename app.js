@@ -4,12 +4,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-// const validator = require('validator');
-// const jsonWebToken = require('jsonwebtoken');
-// const bcrypt = require('bcryptjs');
+const validator = require('validator');
+const jsonWebToken = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const auth = require('./middlwares/auth');
-// const error = require('./middlwares/error');
+const error = require('./middlwares/error');
 const router = require('./routes');
 const {
   PORT,
@@ -23,7 +23,7 @@ mongoose.connect(MONGODB, {
   useNewUrlParser: true,
 });
 
-// app.use(express.json());
+app.use(express.json());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
