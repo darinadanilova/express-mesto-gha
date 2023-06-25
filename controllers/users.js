@@ -77,6 +77,7 @@ const getUserById = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
+    .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
