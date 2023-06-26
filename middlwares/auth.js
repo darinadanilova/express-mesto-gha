@@ -10,7 +10,7 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, SECRET_KEY);
   } catch (err) {
-    next(new UnauthorizedError('Вы ввели неверные email и пароль'));
+    return next(new UnauthorizedError('Вы ввели неверные email и пароль'));
   }
 
   req.user = payload;

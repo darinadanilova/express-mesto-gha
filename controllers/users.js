@@ -79,13 +79,7 @@ const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Вы ввели некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const patchUser = (req, res, next) => {
